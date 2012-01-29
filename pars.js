@@ -81,12 +81,12 @@ var Pars = (function( run ){
 		this.param = w ? p : p.param;
 		this.optional = w ? false : p.optional;
 		this.repeat = w ? false : p.repeat;
-		this.ch = w ? '' : p.ch;
+		this.ch = w ? NaN : p.ch;
 
 		if ( w == R_CHAR || w == R_STRING ) {
-			this.ch = p.charAt(0);
+			this.ch = p.charCodeAt(0);
 
-		} else if  ( w == R_SEQUENCE && p[0] && !p[0].optional ) {
+		} else if ( w == R_SEQUENCE && p[0] && !p[0].optional ) {
 			this.ch = p[0].ch;
 		}
 
@@ -132,7 +132,7 @@ var Pars = (function( run ){
 				m = null;
 
 				if ( what == 1 || what == 2 ) {
-					if ( state.ch && state.ch !== str.charAt(pos) ) {
+					if ( state.ch >= 0 && state.ch !== str.charCodeAt(pos) ) {
 						state = param[0];
 						p = -1;
 
@@ -175,13 +175,13 @@ var Pars = (function( run ){
 					p = param ? pos : -1;
 
 				} else if ( what == 6 ) { // R_CHAR
-					p = str.charAt( pos ) == param ?
+					p = str.charCodeAt( pos ) === state.ch ?
 						pos + 1 :
 						-1;
 
 				} else if ( what == 3 ) { // R_STRING
 					for ( p = 0, l = param.length; i < l; ++p ) {
-						if ( str.charAt(pos+p) !== param.charAt(p) ) {
+						if ( str.charCodeAt(pos+p) !== param.charCodeAt(p) ) {
 							p = -1;
 							break;
 						}
@@ -298,31 +298,34 @@ var Pars = (function( run ){
 		var left = input.substring( 0, index ),
 			lines = left.replace(/\r\n|[\v\f\r\x85\u2028\u2029]/g, '\n').split('\n'),
 			line = lines.length,
-			column = ( lines[ line - 1 ] || '' ).length + 1;
-
-		function repr( s ) {
-			return s ? quote( s ) : 'end of input';
-		}
-
-		var actual = repr( input[ index ] ),
+			column = ( lines[ line - 1 ] || '' ).length + 1,
+			actual = input.charAt( index ),
 			expectedArray = [], expectedMap = {},
-			expected, k, i, len, state, msg;
+			expected, i, len, state, msg;
+
+		actual = actual ? quote( actual ) : '<end of input>';
 
 		for ( i = 0, len = states.length; i < len; ++i ) {
 			state = states[i];
 
-			if ( state.what != R_CHAR && state.what != R_STRING ) {
+			if ( state.data && state.data._alias_ ) {
+				expected = '<' + state.data._alias_ + '>';
+
+			} else if ( state.what == R_CHAR  || state.what == R_STRING ) {
+				expected = quote( state.param );
+
+			} else {
 				i = 0;
 				break;
 			}
 
-			expectedMap[ repr(state.param) ] = 1;
+			expectedMap[ expected ] = 1;
 		}
 
 		if ( i ) {
-			for ( k in expectedMap ) {
-				if ( expectedMap.hasOwnProperty( k ) ) {
-					expectedArray.push( k );
+			for ( expected in expectedMap ) {
+				if ( expectedMap.hasOwnProperty( expected ) ) {
+					expectedArray.push( expected );
 				}
 			}
 
@@ -335,7 +338,7 @@ var Pars = (function( run ){
 			msg = 'Expected ' + expected + ' but ' + actual + ' found.';
 
 		} else {
-			msg = 'Invalid token - ' + actual + '.';
+			msg = 'Unexpected ' + actual + '.';
 		}
 
 		return new SyntaxError( msg, line, column );
@@ -365,7 +368,7 @@ var Pars = (function( run ){
 			what = R_BOOL;
 
 		} else if ( cls == 'String' ) {
-			what = x.length > 1 ? R_STRING : R_CHAR;
+			what = x.length === 1 ? R_CHAR : R_STRING;
 
 		} else if ( cls == 'RegExp' ) {
 			what = R_REGEXP;
@@ -433,6 +436,11 @@ var Pars = (function( run ){
 		w.def = function() {
 			var s = argsToState( arguments );
 			rule.transcribe( s );
+			return w;
+		};
+
+		w.alias = function( str ) {
+			w._alias_ = str;
 			return w;
 		};
 
@@ -565,12 +573,15 @@ var Pars = (function( run ){
 		return val;
 	};
 
-	P.END = P('');
-
 	Rule.prototype.sepBy = function() {
 		var sep = argsToState( arguments );
 		return P._seq( this, P._n( sep, this ) );
 	};
+
+	P.END = P(function( str, pos ) {
+		return str.charCodeAt( pos ) >= 0 ? -1 : pos;
+	})
+	.alias('end of input');
 
 	P.notFirst = P(function( str, pos, n ) {
 		return n ? pos : -1;

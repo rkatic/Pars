@@ -19,12 +19,14 @@ var STRING = P( '"', P(/\\(?:u[0-9a-fA-F]{4}|["\\\/bfnrt])|[^"\\]*/)('m'), '"' )
 	});
 
 var NUMBER = P(/\-?\d+(?:\.\d+)?(?:[eE][\+\-]?\d+)?/)
+	.alias('number')
 	.ret(function() {
 		return +this[0];
 	});
 
 var literals = { 'true': true, 'false': false, 'null': null };
 var LITERAL = P(/true|false|null/)
+	.alias('literal')
 	.ret(function() {
 		return literals[ this[0] ];
 	});
@@ -32,8 +34,6 @@ var LITERAL = P(/true|false|null/)
 var VALUE = P();
 
 var ARRAY = P(
-		//"[", S, [ VALUE(), P._n( S, ",", S, VALUE() ) ], S, "]"
-
 		"[", S, [ VALUE().sepBy( COMMA ) ], S, "]"
 	)
 	.ctor( Array ); // clean Array, please

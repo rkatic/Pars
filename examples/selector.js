@@ -7,11 +7,13 @@ var P = Pars,
 var S = P(/\s*/);
 
 var NAME = P( /(?:[\w\u00c0-\uFFFF\-]|\\.)+/ )
+	.alias('name')
 	.ret(function() {
 		return this[0].replace( rBackslash, "" );
 	});
 
 var INT = P(/0|[1-9][0-9]*/)
+	.alias('integer')
 	.ret(function() {
 		return +this[0];
 	});
