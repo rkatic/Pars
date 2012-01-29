@@ -6,25 +6,22 @@ var P = Pars,
 
 var S = P(/\s*/);
 
-var NAME = P( /(?:[\w\u00c0-\uFFFF\-]|\\.)+/ )
-	.alias('name')
+var NAME = P( /(?:[\w\u00c0-\uFFFF\-]|\\.)+/ ).alias('name')
 	.ret(function() {
 		return this[0].replace( rBackslash, "" );
 	});
 
-var INT = P(/0|[1-9][0-9]*/)
-	.alias('integer')
+var INT = P(/0|[1-9][0-9]*/).alias('integer')
 	.ret(function() {
 		return +this[0];
 	});
 
-
 var STRING = P(
-		P(/"((?:\\.|[^"])*)"/)('m') |
-		P(/'((?:\\.|[^'])*)'/)('m')
+		P._seq( "'", P(/(?:\\.|[^'])*/)('m'), "'" ) |
+		P._seq( '"', P(/(?:\\.|[^"])*/)('m'), '"' )
 	)
 	.ret(function() {
-		return this.m[1].replace( rBackslash, "" );
+		return this.m[0].replace( rBackslash, "" );
 	});
 
 var ATTR_VALUE = P( NAME() | STRING() ).ret(0);
@@ -45,7 +42,6 @@ var PSEUDO = P(
 		[ "(", S, [ PSEUDO_ARG('argument') ], S, ")" ]
 	)
 	.ctor( Object );
-
 
 SIMPLE_SELECTOR.def(
 		[ NAME('tag') ],

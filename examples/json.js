@@ -18,15 +18,13 @@ var STRING = P( '"', P(/\\(?:u[0-9a-fA-F]{4}|["\\\/bfnrt])|[^"\\]*/)('m'), '"' )
 		return this.m[0].replace( escapeRe, escapeRepl );
 	});
 
-var NUMBER = P(/\-?\d+(?:\.\d+)?(?:[eE][\+\-]?\d+)?/)
-	.alias('number')
+var NUMBER = P(/\-?\d+(?:\.\d+)?(?:[eE][\+\-]?\d+)?/).alias('number')
 	.ret(function() {
 		return +this[0];
 	});
 
 var literals = { 'true': true, 'false': false, 'null': null };
-var LITERAL = P(/true|false|null/)
-	.alias('literal')
+var LITERAL = P(/true|false|null/).alias('literal')
 	.ret(function() {
 		return literals[ this[0] ];
 	});
