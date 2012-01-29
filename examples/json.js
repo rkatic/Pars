@@ -4,6 +4,7 @@ var jsonParser = (function( Pars, run ){
 		module.exports = run( require('../pars') );
 })( this.Pars, function( P ) {
 
+var literals = { 'true': true, 'false': false, 'null': null };
 var escapes =  { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
 var escapeRe = /\\(["\\\/bfnrt])|\\u([0-9a-fA-F]{4})/g;
 var escapeRepl = function repl( a, b, c ) {
@@ -24,7 +25,6 @@ var NUMBER = P(/\-?\d+(?:\.\d+)?(?:[eE][\+\-]?\d+)?/).alias('number')
 		return +this[0];
 	});
 
-var literals = { 'true': true, 'false': false, 'null': null };
 var LITERAL = P(/true|false|null/).alias('literal')
 	.ret(function() {
 		return literals[ this[0] ];
