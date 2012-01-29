@@ -573,11 +573,6 @@ var Pars = (function( run ){
 		return val;
 	};
 
-	Rule.prototype.sepBy = function() {
-		var sep = argsToState( arguments );
-		return P._seq( this, P._n( sep, this ) );
-	};
-
 	P.END = P(function( str, pos ) {
 		return str.charCodeAt( pos ) >= 0 ? -1 : pos;
 	})
