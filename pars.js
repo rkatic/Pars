@@ -116,7 +116,7 @@ var Pars = (function( run ){
 	};
 
 	Rule.prototype.scan = function( str, pos ) {
-		var what, param, p, m, d, more, optional, repeat, max, x, l,
+		var what, param, p, m, d, more, optional, repeat, max, i, l,
 			stack = [], fails = [], out = [],
 			state = this,
 			expose = true;
@@ -180,8 +180,8 @@ var Pars = (function( run ){
 						-1;
 
 				} else if ( what == 3 ) { // R_STRING
-					for ( p = 0, l = param.length; i < l; ++p ) {
-						if ( str.charCodeAt(pos+p) !== param.charCodeAt(p) ) {
+					for ( p = pos, i = 0, l = param.length; i < l; ++p, ++i ) {
+						if ( str.charCodeAt(p) !== param.charCodeAt(i) ) {
 							p = -1;
 							break;
 						}
