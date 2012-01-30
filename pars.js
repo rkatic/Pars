@@ -235,7 +235,7 @@ var Pars = (function( run ){
 				expose = d.x;
 				state = d.s;
 
-				if ( ~p ) {
+				if ( ~p && d.n ) {
 					if ( expose && state.out ) {
 						m = [];
 						m._starts_ = true;
@@ -254,6 +254,7 @@ var Pars = (function( run ){
 					pos = d.p;
 					out.length = d.l;
 					optional = d.o;
+					p = -1;
 				}
 
 				d = stack.pop();

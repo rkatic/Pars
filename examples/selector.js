@@ -49,8 +49,7 @@ SIMPLE_SELECTOR.def(
 		[ NAME('tag') ],
 		[ "#", NAME('id') ],
 		_n( ".", NAME('classes[]') ),
-		_n( ATTR('attrs[]') | PSEUDO('pseudos[]') ),
-		P.notFirst
+		_n( ATTR('attrs[]') | PSEUDO('pseudos[]') )
 	)
 	.ctor( Object );
 
