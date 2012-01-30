@@ -19,8 +19,8 @@ var INT = P(/0|[1-9][0-9]*/).alias('integer')
 	});
 
 var STRING = P(
-		P._seq( "'", P(/(?:\\.|[^'])*/)('m'), "'" ) |
-		P._seq( '"', P(/(?:\\.|[^"])*/)('m'), '"' )
+		_seq( "'", P(/(?:\\.|[^'])*/)('m'), "'" ) |
+		_seq( '"', P(/(?:\\.|[^"])*/)('m'), '"' )
 	)
 	.ret(function() {
 		return this.m[0].replace( rBackslash, "" );
@@ -28,9 +28,11 @@ var STRING = P(
 
 var ATTR_VALUE = P( NAME() | STRING() ).ret(0);
 
+var ATTR_OPERATOR = P(/.?=/).ret(0).alias('attribute operator');
+
 var ATTR = P(
-		"[", S, NAME("name"),
-		[ S, P(/.?=/).ret(0)("operator"), S, ATTR_VALUE("value") ],
+		"[", S, NAME('name'),
+		[ S, ATTR_OPERATOR('operator'), S, ATTR_VALUE('value') ],
 		S, "]"
 	)
 	.ctor( Object );
