@@ -2,9 +2,11 @@ var selectorParser = (function(){
 
 var P = Pars,
 	_n = P._n,
+	_seq = P._seq,
 	rBackslash = /\\/g;
 
 var S = P(/\s*/);
+var SPACE = P(/\s+/);
 
 var NAME = P( /(?:[\w\u00c0-\uFFFF\-]|\\.)+/ ).alias('name')
 	.ret(function() {
@@ -53,26 +55,28 @@ SIMPLE_SELECTOR.def(
 	.ctor( Object );
 
 
+var RELATIVE = P(/[>+~]/).ret(0).alias('relative operator');
+
 var SELECTOR = P();
 SELECTOR.def(
-		S, [ P(/[>+~]/)('rel') ], S,
 		SIMPLE_SELECTOR('left'),
-		[ SELECTOR('selector') ]
+		[ _seq(S, RELATIVE('rel'), S) | SPACE, SELECTOR('selector') ]
 	)
 	.ret(function() {
-		this.left.relative = this.rel ? this.rel[0] : '';
-
-		if ( this.selector )
+		if ( this.selector ) {
+			this.selector.rel = this.rel || " ";
 			this.selector.left = this.left;
+			return this.selector;
+		}
 
-		return this.selector || this.left;
+		return this.left;
 	});
 
 var SELECTORS = P(
-		SELECTOR(), _n( S, ",", S, SELECTOR() )
+		SELECTOR(), S, _n( ",", S, SELECTOR() )
 	)
 	.ctor( Array );
 
 
-return P( S, SELECTORS(), P.END ).ret(0)();
+return P( S, SELECTORS(), S, P.END ).ret(0)();
 })();

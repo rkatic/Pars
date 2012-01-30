@@ -13,7 +13,6 @@ var escapeRepl = function repl( a, b, c ) {
 
 var _n = P._n;
 var S = P(/\s*/);
-var COMMA = P( S, ",", S );
 
 var STRING = P( '"', P(/\\(?:u[0-9a-fA-F]{4}|["\\\/bfnrt])|[^"\\]*/)('m'), '"' )
 	.ret(function() {
@@ -33,7 +32,7 @@ var LITERAL = P(/true|false|null/).alias('literal')
 var VALUE = P();
 
 var ARRAY = P(
-		"[", S, [ VALUE(), _n( COMMA, VALUE() ) ], S, "]"
+		"[", S, [ VALUE(), S, _n( ",", S, VALUE(), S ) ], "]"
 	)
 	.ctor( Array ); // clean Array, please
 
@@ -42,7 +41,7 @@ var PAIR = P(
 	);
 
 var OBJECT = P(
-		"{", S, [ PAIR(), _n( COMMA, PAIR() ) ], S, "}"
+		"{", S, [ PAIR(), S, _n( ",", S, PAIR(), S ) ], "}"
 	)
 	.ret(function() {
 		var obj = {};
