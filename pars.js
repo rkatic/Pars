@@ -117,7 +117,7 @@ var Pars = (function( run ){
 
 	Rule.prototype.scan = function( str, pos ) {
 		var what, param, p, m, d, more, optional, repeat, max, i, l,
-			stack = [], fails = [], out = [],
+			fails = [], out = [],
 			state = this,
 			expose = true;
 
@@ -137,13 +137,13 @@ var Pars = (function( run ){
 						p = -1;
 
 					} else {
-						d && stack.push( d );
 						d = {
 							w: what,
 							a: param,
 							i: 1,
 							n: 0,
 							// prevs
+							d: d,
 							p: pos,
 							l: out.length,
 							o: optional,
@@ -257,7 +257,7 @@ var Pars = (function( run ){
 					p = -1;
 				}
 
-				d = stack.pop();
+				d = d.d;
 			}
 
 			if ( repeat ) {
