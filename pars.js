@@ -513,58 +513,58 @@ var Pars = (function( run ){
 
 	P.proc = function() {
 		var a = this, args = arguments,
-			stack = [],
-			i = 0, len = a.length,
-			m, s, g, d, val, name;
+			g, i = 0, len = a.length,
+			m, state, obj, data, val, name;
 
 		for ( ; i < len; ++i ) {
 			m = a[i];
 
 			if ( m ) {
-				s = m._state_;
-				d = s.data;
+				state = m._state_;
+				data = state.data;
 
 				if ( m._starts_ ) {
-					m = d._ctor_ ? new d._ctor_() : m;
+					m = data._ctor_ ? new data._ctor_() : m;
 
-					stack.push( m, s, g );
+					g = { m: m, o: obj, s: state, g: g };
 
-					g = m;
+					obj = m;
 
-					if ( d._start_ ) {
-						d._start_.apply( m, args );
+					if ( data._start_ ) {
+						data._start_.apply( m, args );
 					}
 
 					continue;
 				}
 
 			} else {
-				g = stack.pop();
-				s = stack.pop();
-				m = stack.pop();
-				d = s.data;
+				m = g.m;
+				obj = g.o;
+				state = g.s;
+				data = state.data;
+				g = g.g;
 			}
 
-			val = !d ? m :
-				d._get_ ? d._get_.apply( m, args ) :
-				d._prop_ ? m[ d._prop_ ] :
+			val = !data ? m :
+				data._get_ ? data._get_.apply( m, args ) :
+				data._prop_ ? m[ data._prop_ ] :
 				m;
 
-			name = s.name;
+			name = state.name;
 
-			if ( g ) {
+			if ( obj ) {
 				if ( name ) {
-					if ( s.out > 1 ) {
-						if ( !g[ name ] ) {
-							g[ name ] = [ val ];
+					if ( state.out > 1 ) {
+						if ( !obj[ name ] ) {
+							obj[ name ] = [ val ];
 						} else {
-							g[ name ].push( val );
+							obj[ name ].push( val );
 						}
 					} else {
-						g[ name ] = val;
+						obj[ name ] = val;
 					}
 				} else {
-					g.push( val );
+					obj.push( val );
 				}
 			} else {
 				break;
